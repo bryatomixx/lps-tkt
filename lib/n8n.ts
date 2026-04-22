@@ -23,27 +23,33 @@ function toTicket(d: any): Ticket {
   }
 }
 
-// n8n puede devolver: array plano, objeto único, o items envueltos en {json:{...}}.
-// También maneja el mapeo createdTime → fecha_creacion de Airtable.
+// n8n puede devolver varios formatos según la configuración del workflow.
+// El Code node de agregación produce [[r1,r2]] o [r1,r2].
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeTickets(raw: any): Ticket[] {
-  // Unwrap formatos comunes de n8n
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let items: any[]
+
   if (Array.isArray(raw)) {
-    items = raw
-  } else if (raw?.json && Array.isArray(raw.json)) {
+    // [[r1, r2]] → Code node wrapping (unwrap el nivel extra)
+    if (raw.length > 0 && Array.isArray(raw[0])) {
+      items = raw[0]
+    } else {
+      items = raw
+    }
+  } else if (Array.isArray(raw?.records)) {
+    items = raw.records
+  } else if (Array.isArray(raw?.json)) {
     items = raw.json
-  } else if (raw?.data && Array.isArray(raw.data)) {
+  } else if (Array.isArray(raw?.data)) {
     items = raw.data
   } else {
+    // objeto único (un solo ticket)
     items = [raw]
   }
 
-  return items.map((item) => {
-    // Cada item puede estar envuelto en {json:{...}} (formato interno de n8n)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const d = (item as any)?.json ?? item
+  return items.map((item: any) => {
+    const d = item?.json ?? item
     return toTicket(d)
   })
 }
