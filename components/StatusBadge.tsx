@@ -2,7 +2,7 @@ import type { TicketStatus, TicketPriority } from '@/lib/types'
 
 const statusColors: Record<TicketStatus, { bg: string; text: string }> = {
   'Abierto':     { bg: '#052e16', text: '#22C55E' },
-  'En Progreso': { bg: '#451a03', text: '#F59E0B' },
+  'En progreso': { bg: '#451a03', text: '#F59E0B' },
   'Completado':  { bg: '#1e293b', text: '#94A3B8' },
 }
 

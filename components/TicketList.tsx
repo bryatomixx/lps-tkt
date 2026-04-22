@@ -4,7 +4,7 @@ import { useState } from 'react'
 import type { Ticket, TicketStatus } from '@/lib/types'
 import { TicketCard } from './TicketCard'
 
-const STATUSES: TicketStatus[] = ['Abierto', 'En Progreso', 'Completado']
+const STATUSES: TicketStatus[] = ['Abierto', 'En progreso', 'Completado']
 
 interface Props {
   tickets: Ticket[]

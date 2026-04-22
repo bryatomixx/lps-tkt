@@ -1,4 +1,4 @@
-export type TicketStatus = 'Abierto' | 'En Progreso' | 'Completado'
+export type TicketStatus = 'Abierto' | 'En progreso' | 'Completado'
 export type TicketPriority = 'Alta' | 'Media' | 'Baja'
 export type UserRole = 'client' | 'internal'
 

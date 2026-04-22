@@ -25,7 +25,7 @@ export function AccountsTable({ tickets, onAccountClick }: Props) {
       const a = map.get(key)!
       a.total++
       if (t.estado === 'Abierto') a.abiertos++
-      if (t.estado === 'En Progreso') a.en_progreso++
+      if (t.estado === 'En progreso') a.en_progreso++
       if (t.estado === 'Completado') a.completados++
       if (t.estado !== 'Completado' && t.fecha_comprometida && t.fecha_comprometida < today()) a.vencidos++
     }
@@ -55,7 +55,7 @@ export function AccountsTable({ tickets, onAccountClick }: Props) {
                 {c.label} {sort === c.key ? '↓' : ''}
               </th>
             ))}
-            <th className="text-right px-4 py-3 font-semibold" style={{ color: '#94A3B8' }}>En Progreso</th>
+            <th className="text-right px-4 py-3 font-semibold" style={{ color: '#94A3B8' }}>En progreso</th>
             <th className="text-right px-4 py-3 font-semibold" style={{ color: '#94A3B8' }}>Completados</th>
           </tr>
         </thead>

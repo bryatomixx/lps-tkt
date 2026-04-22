@@ -92,7 +92,7 @@ export function TicketDetail({ ticket, onClose, onUpdated }: Props) {
             <label htmlFor="estado-select">Estado</label>
             <select id="estado-select" value={estado} onChange={e => setEstado(e.target.value as TicketStatus)}>
               <option value="Abierto">Abierto</option>
-              <option value="En Progreso">En Progreso</option>
+              <option value="En progreso">En progreso</option>
               <option value="Completado">Completado</option>
             </select>
           </div>

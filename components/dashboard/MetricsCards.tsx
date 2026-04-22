@@ -14,7 +14,7 @@ interface Props {
 
 export function MetricsCards({ tickets }: Props) {
   const abiertos    = tickets.filter(t => t.estado === 'Abierto').length
-  const en_progreso = tickets.filter(t => t.estado === 'En Progreso').length
+  const en_progreso = tickets.filter(t => t.estado === 'En progreso').length
   const completados = tickets.filter(t => t.estado === 'Completado').length
   const vencidos    = tickets.filter(t =>
     t.estado !== 'Completado' && t.fecha_comprometida && t.fecha_comprometida < today()
@@ -28,7 +28,7 @@ export function MetricsCards({ tickets }: Props) {
 
   const metrics = [
     { label: 'Abiertos',      value: abiertos,    color: '#22C55E' },
-    { label: 'En Progreso',   value: en_progreso,  color: '#F59E0B' },
+    { label: 'En progreso',   value: en_progreso,  color: '#F59E0B' },
     { label: 'Completados',   value: completados,  color: '#94A3B8' },
     { label: 'Vencidos',      value: vencidos,     color: '#EF4444' },
     { label: 'Sin asignar',   value: sin_asignar,  color: '#F59E0B' },
