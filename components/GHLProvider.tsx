@@ -26,6 +26,7 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
   const [accountId, setAccountId] = useState('')
   const [accountName, setAccountName] = useState('')
   const [role, setRole] = useState<UserRole>('client')
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     // GHL puede enviar el ID como account_id o location_id en los query params
@@ -66,6 +67,8 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
       const stored = sessionStorage.getItem('ghl_role') as UserRole | null
       setRole(stored ?? 'client')
     }
+
+    setReady(true)
   }, [searchParams])
 
   // GHL también puede enviar el locationId via postMessage cuando embebe en iframe
@@ -99,12 +102,13 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
     router.push(`${path}${sep}account_id=${id}&role=${r}`)
   }
 
-  // Redirect dashboard access if not internal
+  // Redirect dashboard access if not internal — espera a que los params estén cargados
   useEffect(() => {
+    if (!ready) return
     if (pathname === '/dashboard' && role === 'client') {
       navigate('/')
     }
-  }, [pathname, role])
+  }, [pathname, role, ready])
 
   return <GHL.Provider value={{ accountId, accountName, role, navigate }}>{children}</GHL.Provider>
 }
