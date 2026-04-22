@@ -4,27 +4,48 @@ const WEBHOOK_CREATE = process.env.N8N_WEBHOOK_CREATE!
 const WEBHOOK_LIST   = process.env.N8N_WEBHOOK_LIST!
 const WEBHOOK_UPDATE = process.env.N8N_WEBHOOK_UPDATE!
 
-// n8n/Airtable puede devolver un objeto, un array, o items con wrapping.
-// También mapea createdTime → fecha_creacion.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toTicket(d: any): Ticket {
+  return {
+    ticket_id:          d.ticket_id         ?? d.id             ?? '',
+    account_id:         d.account_id        ?? '',
+    account_name:       d.account_name,
+    titulo:             d.titulo            ?? '',
+    descripcion:        d.descripcion       ?? '',
+    fecha_deseada:      d.fecha_deseada     ?? '',
+    fecha_comprometida: d.fecha_comprometida,
+    prioridad:          d.prioridad         ?? 'Media',
+    estado:             d.estado            ?? 'Abierto',
+    asignado_a:         d.asignado_a,
+    fecha_creacion:     d.fecha_creacion    ?? d.createdTime     ?? '',
+    fecha_cierre:       d.fecha_cierre,
+    notas_internas:     d.notas_internas,
+  }
+}
+
+// n8n puede devolver: array plano, objeto único, o items envueltos en {json:{...}}.
+// También maneja el mapeo createdTime → fecha_creacion de Airtable.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeTickets(raw: any): Ticket[] {
-  const arr: unknown[] = Array.isArray(raw) ? raw : [raw]
+  // Unwrap formatos comunes de n8n
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return arr.map((item: any) => ({
-    ticket_id:        item.ticket_id        ?? item.id             ?? '',
-    account_id:       item.account_id       ?? '',
-    account_name:     item.account_name,
-    titulo:           item.titulo           ?? '',
-    descripcion:      item.descripcion      ?? '',
-    fecha_deseada:    item.fecha_deseada    ?? '',
-    fecha_comprometida: item.fecha_comprometida,
-    prioridad:        item.prioridad        ?? 'Media',
-    estado:           item.estado           ?? 'Abierto',
-    asignado_a:       item.asignado_a,
-    fecha_creacion:   item.fecha_creacion   ?? item.createdTime    ?? '',
-    fecha_cierre:     item.fecha_cierre,
-    notas_internas:   item.notas_internas,
-  }))
+  let items: any[]
+  if (Array.isArray(raw)) {
+    items = raw
+  } else if (raw?.json && Array.isArray(raw.json)) {
+    items = raw.json
+  } else if (raw?.data && Array.isArray(raw.data)) {
+    items = raw.data
+  } else {
+    items = [raw]
+  }
+
+  return items.map((item) => {
+    // Cada item puede estar envuelto en {json:{...}} (formato interno de n8n)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const d = (item as any)?.json ?? item
+    return toTicket(d)
+  })
 }
 
 export async function createTicket(payload: CreateTicketPayload): Promise<{ success: boolean }> {
