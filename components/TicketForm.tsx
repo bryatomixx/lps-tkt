@@ -2,18 +2,19 @@
 
 import { useState } from 'react'
 import type { TicketPriority } from '@/lib/types'
+import { useGHL } from './GHLProvider'
 
 interface Props {
   accountId: string
 }
 
 export function TicketForm({ accountId }: Props) {
+  const { navigate } = useGHL()
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [fechaDeseada, setFechaDeseada] = useState('')
   const [prioridad, setPrioridad] = useState<TicketPriority>('Media')
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,40 +32,12 @@ export function TicketForm({ accountId }: Props) {
         body: JSON.stringify({ account_id: accountId, titulo, descripcion, fecha_deseada: fechaDeseada, prioridad }),
       })
       if (!res.ok) throw new Error()
-      setSuccess(true)
-      setTitulo('')
-      setDescripcion('')
-      setFechaDeseada('')
-      setPrioridad('Media')
+      navigate('/tickets')
     } catch {
       setError('Hubo un error al enviar el ticket. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-        <div className="w-14 h-14 rounded-full flex items-center justify-center"
-          style={{ backgroundColor: '#052e16' }}>
-          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#22C55E" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-semibold" style={{ color: '#F8FAFC' }}>Ticket enviado</h2>
-        <p style={{ color: '#94A3B8' }}>Lo revisaremos y nos pondremos en contacto contigo pronto.</p>
-        <button
-          onClick={() => setSuccess(false)}
-          className="mt-2 px-5 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-colors duration-150"
-          style={{ backgroundColor: '#22C55E', color: '#020617' }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#16A34A')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#22C55E')}
-        >
-          Abrir otro ticket
-        </button>
-      </div>
-    )
   }
 
   return (

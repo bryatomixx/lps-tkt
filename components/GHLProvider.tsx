@@ -25,14 +25,27 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<UserRole>('client')
 
   useEffect(() => {
-    const paramAccount = searchParams.get('account_id')
+    // GHL puede enviar el ID como account_id o location_id en los query params
+    const paramAccount =
+      searchParams.get('account_id') ||
+      searchParams.get('location_id') ||
+      searchParams.get('locationId')
     const paramRole = searchParams.get('role') as UserRole | null
 
     if (paramAccount) {
       sessionStorage.setItem('ghl_account_id', paramAccount)
       setAccountId(paramAccount)
     } else {
-      setAccountId(sessionStorage.getItem('ghl_account_id') ?? '')
+      // Fallback: extraer location ID del referrer de GHL
+      // La URL de GHL contiene /location/<id>/ cuando se abre desde un custom menu
+      const referrerMatch = document.referrer.match(/\/location\/([A-Za-z0-9]+)/)
+      const referrerId = referrerMatch?.[1] ?? ''
+      const stored = sessionStorage.getItem('ghl_account_id') ?? ''
+      const resolved = referrerId || stored
+      if (resolved) {
+        sessionStorage.setItem('ghl_account_id', resolved)
+        setAccountId(resolved)
+      }
     }
 
     if (paramRole === 'internal' || paramRole === 'client') {
@@ -43,6 +56,30 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
       setRole(stored ?? 'client')
     }
   }, [searchParams])
+
+  // GHL también puede enviar el locationId via postMessage cuando embebe en iframe
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      const data = event.data
+      if (!data || typeof data !== 'object') return
+
+      const locationId: string | undefined =
+        data.locationId ||
+        data.location_id ||
+        data.location?.id ||
+        data.activeLocation ||
+        data.data?.locationId ||
+        data.data?.location_id
+
+      if (locationId && !sessionStorage.getItem('ghl_account_id')) {
+        sessionStorage.setItem('ghl_account_id', locationId)
+        setAccountId(locationId)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
 
   function navigate(path: string) {
     const id = accountId || sessionStorage.getItem('ghl_account_id') || ''
