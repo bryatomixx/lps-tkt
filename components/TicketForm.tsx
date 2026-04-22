@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function TicketForm({ accountId }: Props) {
-  const { navigate } = useGHL()
+  const { navigate, accountName } = useGHL()
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [fechaDeseada, setFechaDeseada] = useState('')
@@ -29,7 +29,7 @@ export function TicketForm({ accountId }: Props) {
       const res = await fetch('/api/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ account_id: accountId, titulo, descripcion, fecha_deseada: fechaDeseada, prioridad }),
+        body: JSON.stringify({ account_id: accountId, account_name: accountName, titulo, descripcion, fecha_deseada: fechaDeseada, prioridad }),
       })
       if (!res.ok) throw new Error()
       navigate('/tickets')

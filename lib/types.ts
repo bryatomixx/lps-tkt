@@ -31,6 +31,7 @@ export interface AccountSummary {
 
 export interface CreateTicketPayload {
   account_id: string
+  account_name: string
   titulo: string
   descripcion: string
   fecha_deseada: string

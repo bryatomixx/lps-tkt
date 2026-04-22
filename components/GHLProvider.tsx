@@ -6,12 +6,14 @@ import type { UserRole } from '@/lib/types'
 
 interface GHLContext {
   accountId: string
+  accountName: string
   role: UserRole
   navigate: (path: string) => void
 }
 
 const GHL = createContext<GHLContext>({
   accountId: '',
+  accountName: '',
   role: 'client',
   navigate: () => {},
 })
@@ -22,6 +24,7 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   const [accountId, setAccountId] = useState('')
+  const [accountName, setAccountName] = useState('')
   const [role, setRole] = useState<UserRole>('client')
 
   useEffect(() => {
@@ -30,6 +33,7 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
       searchParams.get('account_id') ||
       searchParams.get('location_id') ||
       searchParams.get('locationId')
+    const paramName = searchParams.get('account_name')
     const paramRole = searchParams.get('role') as UserRole | null
 
     if (paramAccount) {
@@ -46,6 +50,13 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
         sessionStorage.setItem('ghl_account_id', resolved)
         setAccountId(resolved)
       }
+    }
+
+    if (paramName) {
+      sessionStorage.setItem('ghl_account_name', paramName)
+      setAccountName(paramName)
+    } else {
+      setAccountName(sessionStorage.getItem('ghl_account_name') ?? '')
     }
 
     if (paramRole === 'internal' || paramRole === 'client') {
@@ -95,7 +106,7 @@ export function GHLProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, role])
 
-  return <GHL.Provider value={{ accountId, role, navigate }}>{children}</GHL.Provider>
+  return <GHL.Provider value={{ accountId, accountName, role, navigate }}>{children}</GHL.Provider>
 }
 
 export function useGHL() {
